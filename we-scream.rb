@@ -48,7 +48,7 @@ end
 
 
 
-def get_ice_create(search_results)
+def get_ice_cream(search_results)
   response = RestClient.get(search_results)
   options = JSON.parse(response)
   names = []
@@ -82,4 +82,26 @@ def meow_directions(there, here = get_position)
   ).to_s
 end
 
+def parse_directions(webness)
+  response = RestClient.get(webness)
+  options = JSON.parse(response)
+  directions = []
 
+  options["routes"][0]["legs"][0]["steps"].each do |direction|
+    directions << direction["html_instructions"]
+  end
+
+  directions.map! do |dir|
+    dir = Nokogiri::HTML(dir).text
+  end
+
+  directions
+end
+
+def get_stuff_done
+  pos = get_position
+  search = my_ice_cream_search(pos)
+  shop_options = get_ice_cream(search)
+  coords_of_shop = pull_coordinates(0, search)
+  meow = meow_directions(coords_of_shop, pos)
+end
